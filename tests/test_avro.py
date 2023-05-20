@@ -97,3 +97,19 @@ def test_stats():
         assert "min" in stats
         assert "max" in stats
 
+
+def test_head():
+    pass
+
+
+def test_tail():
+    pass
+
+
+def test_schema():
+    pass
+
+
+def test_query():
+    pass
+

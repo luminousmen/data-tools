@@ -76,7 +76,7 @@ class AvroUtils(BaseUtils):
                     elif column_stat["max"] is None or v > column_stat["max"]:
                         column_stat["max"] = v
                     column_stats[k] = column_stat
-
+            print(column_stat)
             return num_rows, column_stats
 
     @classmethod

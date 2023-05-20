@@ -38,3 +38,35 @@ def test_create_sample():
         assert file_path.exists()
         assert os.path.getsize(file_path) > 0
 
+
+def test_snappy_meta():
+    pass
+
+
+def test_deflate_meta():
+    pass
+
+
+def test_meta():
+    pass
+
+
+def test_stats():
+    pass
+
+
+def test_head():
+    pass
+
+
+def test_tail():
+    pass
+
+
+def test_schema():
+    pass
+
+
+def test_query():
+    pass
+

@@ -5,6 +5,7 @@ import typing as T
 from pathlib import Path
 
 import duckdb
+import fastavro
 import pyarrow as pa
 
 
@@ -205,9 +206,22 @@ class BaseUtils:
         print(f"Serialized size: {serialized_size}")
 
     @classmethod
+    def to_arrow_table(cls, file_path: Path) -> pa.Table:
+        with open(file_path, "rb") as f:
+            avro_reader = fastavro.reader(f)
+            table = pa.Table.from_pylist(list(avro_reader))
+            return table
+
+    @classmethod
+    def write_arrow_table(cls, table: pa.Table, file_path: Path) -> None:
+        with open(file_path, "wb") as f:
+            fastavro.writer(f, table.schema, table.to_pydict().values())
+
+    @classmethod
     def query(cls, file_path: Path, query_expression: str):
         """
         Query and filter data in an Avro or Parquet file.
+        Example: "select * from 'weather.avro'"
         """
         my_arrow_table = cls.to_arrow_table(file_path)
 
