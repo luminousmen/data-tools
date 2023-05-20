@@ -80,3 +80,20 @@ def test_meta():
     assert result[0] == expected_schema
     assert result[2] == "null"
     assert result[3] == 358
+
+
+def test_stats():
+    file_path = TEST_DATA_DIR / "data" / "avro" / "weather.avro"
+
+    # Call the stats method
+    result = AvroUtils.stats(file_path)
+    num_rows, columns_stats = result
+
+    assert num_rows == 5
+    assert isinstance(columns_stats, dict)
+    for col, stats in columns_stats.items():
+        assert isinstance(stats["count"], int)
+        assert isinstance(stats["null_count"], int)
+        assert "min" in stats
+        assert "max" in stats
+

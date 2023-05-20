@@ -1,7 +1,8 @@
 import random
-import typing as T
-import timeit
 import string
+import timeit
+import typing as T
+from pathlib import Path
 
 
 class BaseUtils:
@@ -77,7 +78,7 @@ class BaseUtils:
         """
         Generate a random string of given length.
         """
-        return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+        return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
     @classmethod
     def _generate_random_bytes(cls, length: int = 10) -> bytes:
@@ -172,7 +173,7 @@ class BaseUtils:
 
         return timed
 
-    def create_sample(self, file_path, schema_path, sample_size):
+    def create_sample(self, file_path: Path, schema_path: Path, sample_size: int):
         raise NotImplementedError
 
     @staticmethod
@@ -189,6 +190,9 @@ class BaseUtils:
             for col_name in column_names:
                 row_dict[col_name] = data_dict[col_name][i]
             print(row_dict)
+
+    def meta(self, file_path: Path):
+        raise NotImplementedError
 
     @staticmethod
     def print_metadata(schema, metadata, codec, serialized_size):

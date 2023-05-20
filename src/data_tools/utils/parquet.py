@@ -1,17 +1,18 @@
 import json
-from pathlib import Path
 import typing as T
+from pathlib import Path
 
 import fastavro
 import pyarrow as pa
 import pyarrow.parquet as pq
+
 from data_tools.utils.base import BaseUtils
 
 
 class ParquetUtils(BaseUtils):
     @classmethod
     def create_sample(cls, file_path: Path, schema_path: Path, sample_size: int, codec: str = None,
-            metadata=None, sync_interval: int = 1024 * 1024) -> Path:
+                      metadata=None, sync_interval: int = 1024 * 1024) -> Path:
         """
         Create a random sample data file given an Avro schema file.
         """
@@ -33,11 +34,34 @@ class ParquetUtils(BaseUtils):
     @classmethod
     def meta(cls, file_path: Path) -> T.Tuple:
         """
-        Inspect metadata of an Avro or Parquet file.
+        Inspect metadata of a Parquet file.
         """
         parquet_file = pq.ParquetFile(file_path)
         codec = parquet_file.metadata.row_group(0).column(0).compression
+        cls.print_metadata(parquet_file.schema, parquet_file.metadata, codec, parquet_file.metadata)
         return parquet_file.schema, parquet_file.metadata, codec, parquet_file.metadata
+
+    @classmethod
+    def stats(cls, file_path: Path):
+        parquet_file = pq.ParquetFile(file_path)
+        num_rows = parquet_file.metadata.num_rows
+        column_stats = {}
+        for i in range(parquet_file.num_row_groups):
+            table = parquet_file.read_row_group(i)
+            for j, column_name in enumerate(table.schema.names):
+                column = table.column(j)
+                column_stat = column_stats.get(column_name, {
+                    "count": 0,
+                    "null_count": 0,
+                    "min": None,
+                    "max": None
+                })
+                column_stat["count"] += len(column)
+                column_stat["null_count"] += column.null_count
+                column_stat["min"] = pa.compute.min(column).as_py()
+                column_stat["max"] = pa.compute.max(column).as_py()
+                column_stats[column_name] = column_stat
+        return num_rows, column_stats
 
     @classmethod
     def tail(cls, file_path: Path, n: int = 20):

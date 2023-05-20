@@ -1,12 +1,9 @@
-[tool.poetry]
-name = "tm"
+[project]
+name = "data-tools"
 version = "0.1.0"
 description = ""
-authors = ["Kirill Bobrov <kirillb@spotify.com>"]
+authors = [{name="Kirill Bobrov", email="miaplanedo@gmail.com"}]
 readme = "README.md"
-packages = [
-    { include = "data_tools", from = "src"}
-]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -15,15 +12,18 @@ duckdb = "^0.7.1"
 arrow = "^1.2.3"
 cython = "^0.29.34"
 pyarrow = "^12.0.0"
-pytest-cov = "^4.0.0"
 python-snappy = "^0.6.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+pytest-cov = "^4.0.0"
+
+[project.scripts]
+data-tools = "data_tools.main:main"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
 log_cli = true

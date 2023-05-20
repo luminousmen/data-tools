@@ -23,7 +23,13 @@ def get_file_format(file_path: Path) -> str:
         raise ValueError("Unsupported file format.")
 
 
-def main(command: str, file_path: Path):
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command", type=str, help="Command")
+    parser.add_argument("file_path", type=Path, help="Path to the file")
+    args = parser.parse_args()
+    command, file_path = args.command, args.file_path
+
     file_format = get_file_format(file_path)
     if file_format == "avro":
         utilsCls = AvroUtils
@@ -37,8 +43,4 @@ def main(command: str, file_path: Path):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("command", type=str, help="Command")
-    parser.add_argument("file_path", type=Path, help="Path to the file")
-    args = parser.parse_args()
-    main(args.command, args.file_path)
+    main()

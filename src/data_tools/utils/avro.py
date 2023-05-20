@@ -1,9 +1,10 @@
 import os
 import json
-from pathlib import Path
 import typing as T
+from pathlib import Path
 
 import fastavro
+
 from data_tools.utils.base import BaseUtils
 
 
@@ -39,11 +40,7 @@ class AvroUtils(BaseUtils):
             schema = avro_reader.writer_schema
             serialized_size = os.path.getsize(file_path)
 
-            print(f"Avro schema: {schema}")
-            print(f"Avro metadata: {avro_reader.metadata}")
-            print(f"Avro codec: {avro_reader.codec}")
-            print(f"Serialized size: {serialized_size}")
-
+            cls.print_metadata(schema, avro_reader.metadata, avro_reader.codec, serialized_size)
             return schema, avro_reader.metadata, avro_reader.codec, serialized_size
 
     @classmethod
@@ -57,11 +54,36 @@ class AvroUtils(BaseUtils):
             print(f"Avro metadata: {avro_reader.metadata}, {serialized_size}")
 
     @classmethod
+    def stats(cls, file_path: Path) -> T.Tuple[int, T.Dict]:
+        with open(file_path, "rb") as f:
+            avro_reader = fastavro.reader(f)
+            num_rows = 0
+            column_stats = {}
+            for row in avro_reader:
+                num_rows += 1
+                for k, v in row.items():
+                    column_stat = column_stats.get(k, {
+                        "count": 0,
+                        "null_count": 0,
+                        "min": None,
+                        "max": None
+                    })
+                    column_stat["count"] += 1
+                    if v is None:
+                        column_stat["null_count"] += 1
+                    elif column_stat["min"] is None or v < column_stat["min"]:
+                        column_stat["min"] = v
+                    elif column_stat["max"] is None or v > column_stat["max"]:
+                        column_stat["max"] = v
+                    column_stats[k] = column_stat
+
+            return num_rows, column_stats
+
+    @classmethod
     def tail(cls, file_path: Path, n: int = 20) -> T.List:
         """
         Returns the last N records of an Avro file as a list of dictionaries.
         """
-        # Open the file for reading
         with open(file_path, "rb") as f:
             avro_reader = fastavro.reader(f)
             records = list(avro_reader)
