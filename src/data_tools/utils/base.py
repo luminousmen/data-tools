@@ -4,6 +4,9 @@ import timeit
 import typing as T
 from pathlib import Path
 
+import duckdb
+import pyarrow as pa
+
 
 class BaseUtils:
     @classmethod
@@ -200,3 +203,33 @@ class BaseUtils:
         print(f"Metadata: {metadata}")
         print(f"Codec: {codec}")
         print(f"Serialized size: {serialized_size}")
+
+    @classmethod
+    def query(cls, file_path: Path, query_expression: str):
+        """
+        Query and filter data in an Avro or Parquet file.
+        """
+        my_arrow_table = cls.to_arrow_table(file_path)
+
+        con = duckdb.connect()
+        con.register(file_path.name, my_arrow_table)
+
+        # Run query that selects part of the data
+        query = con.execute(query_expression)
+
+        # Create Record Batch Reader from Query Result.
+        # "fetch_record_batch()" also accepts an extra parameter related to the desired produced chunk size.
+        record_batch_reader = query.fetch_record_batch()
+
+        # Retrieve all batch chunks
+        all_chunks = []
+        while True:
+            try:
+                # Process a single chunk here
+                # pyarrow.lib.RecordBatch
+                chunk = record_batch_reader.read_next_batch()
+                all_chunks.append(chunk)
+            except StopIteration:
+                break
+        data = pa.Table.from_batches(all_chunks)
+        cls._print_table(data)
