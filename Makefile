@@ -15,10 +15,8 @@ lint: init
 
 .PHONY: clean
 clean:
-	# test artifacts
 	rm -rf .coverage coverage.xml report.xml .pytest_cache htmlcov
-	# build artifacts
-	rm -rf requirements.txt .eggs build dist src/data_tools.egg-info
+	rm -rf .eggs build dist src/data_tools.egg-info
 
 .PHONY: coverage
 coverage: init

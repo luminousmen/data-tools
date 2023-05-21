@@ -55,6 +55,9 @@ class AvroUtils(BaseUtils):
 
     @classmethod
     def stats(cls, file_path: Path) -> T.Tuple[int, T.Dict]:
+        """
+        Calculate column statistics for an Avro file.
+        """
         with open(file_path, "rb") as f:
             avro_reader = fastavro.reader(f)
             num_rows = 0
@@ -76,7 +79,7 @@ class AvroUtils(BaseUtils):
                     elif column_stat["max"] is None or v > column_stat["max"]:
                         column_stat["max"] = v
                     column_stats[k] = column_stat
-            print(column_stat)
+            print(column_stats)
             return num_rows, column_stats
 
     @classmethod
